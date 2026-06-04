@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-config
+data:
+  PORT: "8080"
+  AUTH_SERVICE_URL: "http://auth-service:5000"
+  USER_SERVICE_URL: "http://user-service:5001"
+  PRODUCT_SERVICE_URL: "http://product-service:5002"
+  ORDER_SERVICE_URL: "http://order-service:5003"
+  PAYMENT_SERVICE_URL: "http://payment-service:5004"
