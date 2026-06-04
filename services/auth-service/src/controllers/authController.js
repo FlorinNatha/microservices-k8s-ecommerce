@@ -3,14 +3,14 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 // Helper function to generate JWT
-const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'secret_key', {
+const signToken = (id, role) => {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET || 'secret_key', {
     expiresIn: process.env.JWT_EXPIRES_IN || '1d'
   });
 };
 
 const sendTokenResponse = (user, statusCode, res) => {
-  const token = signToken(user._id);
+  const token = signToken(user._id, user.role);
 
   res.status(statusCode).json({
     status: 'success',
