@@ -10,12 +10,22 @@ exports.processPayment = async (req, res) => {
       return res.status(400).json({ status: 'error', message: 'Please provide amount and orderId' });
     }
 
-    // Create a PaymentIntent with the order amount and currency
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Stripe expects amounts in cents
-      currency: currency || 'usd',
-      metadata: { orderId, userId: req.user.id },
-    });
+    let paymentIntent;
+    
+    // If we are using the mock development key, simulate a Stripe response
+    // Otherwise, actually call the Stripe API
+    if (process.env.STRIPE_SECRET_KEY === 'sk_test_mock_key_for_development' || !process.env.STRIPE_SECRET_KEY) {
+      paymentIntent = {
+        id: 'pi_mock_' + Math.random().toString(36).substr(2, 9),
+        client_secret: 'pi_mock_secret_' + Math.random().toString(36).substr(2, 9)
+      };
+    } else {
+      paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Stripe expects amounts in cents
+        currency: currency || 'usd',
+        metadata: { orderId, userId: req.user.id },
+      });
+    }
 
     // Record the payment intent in database
     const paymentRecord = await Payment.create({
