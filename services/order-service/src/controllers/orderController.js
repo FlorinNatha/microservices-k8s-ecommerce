@@ -1,4 +1,5 @@
 const Order = require('../models/Order');
+const { publishEvent } = require('../utils/rabbitmq');
 
 // Create new order
 exports.addOrderItems = async (req, res) => {
@@ -28,6 +29,9 @@ exports.addOrderItems = async (req, res) => {
       });
 
       const createdOrder = await order.save();
+
+      // Publish event
+      publishEvent('ORDER_CREATED', createdOrder);
 
       res.status(201).json({
         status: 'success',

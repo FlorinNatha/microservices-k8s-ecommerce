@@ -1,5 +1,6 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'sk_test_mock_key');
 const Payment = require('../models/Payment');
+const { publishEvent } = require('../utils/rabbitmq');
 
 // Process a payment intent
 exports.processPayment = async (req, res) => {
@@ -61,6 +62,10 @@ exports.updatePaymentStatus = async (req, res) => {
 
     payment.status = status;
     await payment.save();
+
+    if (status === 'COMPLETED') {
+      publishEvent('PAYMENT_SUCCESS', { orderId: payment.orderId });
+    }
 
     res.status(200).json({
       status: 'success',
