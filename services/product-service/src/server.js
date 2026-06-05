@@ -35,12 +35,14 @@ const connectDB = async () => {
 const PORT = process.env.PORT || 5002;
 
 const { connectRabbitMQ, consumeEvent } = require('./utils/rabbitmq');
+const { connectRedis } = require('./utils/redis');
 const Product = require('./models/Product');
 
 app.listen(PORT, async () => {
   console.log(`Product Service running on port ${PORT}`);
   await connectDB();
   await connectRabbitMQ();
+  await connectRedis();
 
   // Listen for orders to update inventory
   consumeEvent('ORDER_CREATED', async (data) => {
