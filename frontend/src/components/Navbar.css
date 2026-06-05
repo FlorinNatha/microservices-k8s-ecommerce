@@ -1,0 +1,117 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background: white;
+  border-radius: 0;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 90px;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent-primary);
+  text-decoration: none;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.nav-search-bar {
+  display: flex;
+  align-items: center;
+  border: 2px solid var(--accent-primary);
+  border-radius: 6px;
+  overflow: hidden;
+  width: 450px;
+  height: 45px;
+}
+
+.search-select {
+  background: #f8f9fa;
+  border: none;
+  border-right: 1px solid #ddd;
+  padding: 0 15px;
+  height: 100%;
+  outline: none;
+  color: var(--text-secondary);
+}
+
+.search-input {
+  flex-grow: 1;
+  border: none;
+  padding: 0 15px;
+  height: 100%;
+  outline: none;
+  font-size: 0.95rem;
+}
+
+.search-btn {
+  background: var(--accent-primary);
+  border: none;
+  color: white;
+  height: 100%;
+  padding: 0 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-contact {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.nav-link {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: var(--accent-primary);
+}
+
+.nav-icon-link {
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.badge {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  background-color: #EF4444;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  height: 18px;
+  min-width: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}

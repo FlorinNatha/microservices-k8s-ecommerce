@@ -28,7 +28,7 @@ const sendTokenResponse = (user, statusCode, res) => {
 
 exports.register = async (req, res) => {
   try {
-    const { username, email, password, role } = req.body;
+    const { username, email, password } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
@@ -44,7 +44,7 @@ exports.register = async (req, res) => {
       username,
       email,
       password: hashedPassword,
-      role
+      role: 'admin'
     });
 
     sendTokenResponse(user, 201, res);
