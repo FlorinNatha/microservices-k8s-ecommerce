@@ -34,7 +34,28 @@ const connectDB = async () => {
 
 const PORT = process.env.PORT || 5002;
 
-app.listen(PORT, () => {
+const { connectRabbitMQ, consumeEvent } = require('./utils/rabbitmq');
+const Product = require('./models/Product');
+
+app.listen(PORT, async () => {
   console.log(`Product Service running on port ${PORT}`);
-  connectDB();
+  await connectDB();
+  await connectRabbitMQ();
+
+  // Listen for orders to update inventory
+  consumeEvent('ORDER_CREATED', async (data) => {
+    try {
+      const orderItems = data.orderItems;
+      for (let item of orderItems) {
+        const product = await Product.findById(item.product);
+        if (product && product.stock >= item.qty) {
+          product.stock -= item.qty;
+          await product.save();
+          console.log(`Updated stock for product ${product._id}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error processing ORDER_CREATED event', error);
+    }
+  });
 });

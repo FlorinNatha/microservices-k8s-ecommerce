@@ -34,7 +34,26 @@ const connectDB = async () => {
 
 const PORT = process.env.PORT || 5003;
 
-app.listen(PORT, () => {
+const { connectRabbitMQ, consumeEvent } = require('./utils/rabbitmq');
+const Order = require('./models/Order');
+
+app.listen(PORT, async () => {
   console.log(`Order Service running on port ${PORT}`);
-  connectDB();
+  await connectDB();
+  await connectRabbitMQ();
+
+  // Listen for payments to update order status
+  consumeEvent('PAYMENT_SUCCESS', async (data) => {
+    try {
+      const order = await Order.findById(data.orderId);
+      if (order) {
+        order.isPaid = true;
+        order.paidAt = Date.now();
+        await order.save();
+        console.log(`Order ${order._id} marked as paid`);
+      }
+    } catch (error) {
+      console.error('Error processing PAYMENT_SUCCESS event', error);
+    }
+  });
 });
