@@ -1,65 +1,79 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, User, Package, LogOut, Search, Phone } from 'lucide-react';
+import { ShoppingCart, User, Package, LogOut, Search, Phone, Menu, X } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import { CartContext } from '../context/CartContext';
-import './Navbar.css';
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
   const { cartItemsCount } = useContext(CartContext);
+  const [open, setOpen] = useState(false);
 
   return (
-    <nav className="navbar glass-panel" style={{borderBottom: '1px solid #E5E7EB'}}>
-      <div className="container nav-container">
-        <Link to="/" className="nav-logo" style={{color: 'var(--accent-primary)', fontSize: '2rem'}}>
-          <Package className="logo-icon" size={32} />
-          <span>Rozer</span>
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl">
+      <div className="container flex items-center justify-between gap-4 py-4">
+        <Link to="/" className="flex items-center gap-3 text-xl font-semibold tracking-tight text-slate-100">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300 shadow-lg shadow-cyan-500/10">
+            <Package size={24} />
+          </span>
+          <span>HPhone</span>
         </Link>
 
-        <div className="nav-search-bar">
-          <select className="search-select">
-            <option>All Categories</option>
-          </select>
-          <input type="text" placeholder="Search products here..." className="search-input" />
-          <button className="search-btn"><Search size={20} /></button>
-        </div>
-        
-        <div className="nav-contact">
-          <Phone size={24} style={{color: 'var(--text-secondary)'}} />
-          <div>
-            <span style={{fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block'}}>Call Us:</span>
-            <strong style={{fontSize: '0.9rem'}}>(+123) 888 9999</strong>
-          </div>
-        </div>
+        <button
+          className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/70 p-3 text-slate-200 hover:bg-slate-900/90 sm:hidden"
+          onClick={() => setOpen((value) => !value)}
+          aria-label="Toggle menu"
+        >
+          {open ? <X size={20} /> : <Menu size={20} />}
+        </button>
 
-        <div className="nav-links">
-          <Link to="/" className="nav-link">Products</Link>
-          <Link to="/cart" className="nav-icon-link">
-            <ShoppingCart size={20} />
-            {cartItemsCount > 0 && <span className="badge">{cartItemsCount}</span>}
-          </Link>
-          
-          {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-              {user.role === 'admin' && (
-                <Link to="/admin" className="nav-link" style={{color: 'var(--accent-primary)'}}>Admin</Link>
-              )}
-              <span style={{ color: 'var(--text-secondary)' }}>Hi, {user.username}</span>
-              <button onClick={logout} className="btn-primary" style={{ padding: '8px 16px', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.5)' }}>
-                <LogOut size={16} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />
-                Logout
-              </button>
-            </div>
-          ) : (
-            <Link to="/login" className="btn-primary" style={{ padding: '8px 16px', marginLeft: '12px' }}>
-              <User size={16} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />
-              Login
+        <nav className={`flex-1 items-center justify-between gap-6 transition-all sm:flex ${open ? 'block' : 'hidden'} sm:block`}>
+          <div className="mb-4 flex flex-col gap-4 sm:mb-0 sm:flex-row sm:items-center">
+            <Link to="/" className="text-sm font-medium uppercase tracking-[0.26em] text-slate-400 hover:text-white sm:text-base">Home</Link>
+            <Link to="/products" className="text-sm font-medium uppercase tracking-[0.26em] text-slate-400 hover:text-white sm:text-base">Products</Link>
+            <Link to="/cart" className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 text-sm font-semibold text-slate-100 hover:bg-slate-900/95 sm:px-5">
+              <ShoppingCart size={18} />
+              Cart {cartItemsCount > 0 ? `(${cartItemsCount})` : ''}
             </Link>
-          )}
-        </div>
+            <div className="hidden sm:flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3">
+              <Phone size={18} className="text-cyan-300" />
+              <div className="text-left text-xs leading-4 text-slate-400">
+                <p>Call us</p>
+                <p className="font-semibold text-slate-200">(+123) 888 9999</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            {user ? (
+              <>
+                {user.role === 'admin' && (
+                  <Link to="/admin" className="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-sm font-semibold text-cyan-200 hover:bg-cyan-400/15">
+                    Admin
+                  </Link>
+                )}
+                <span className="rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-slate-200">Hi, {user.username}</span>
+                <button
+                  onClick={logout}
+                  className="rounded-2xl bg-gradient-to-r from-cyan-400 to-sky-500 px-4 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/10 hover:brightness-110"
+                >
+                  <LogOut size={16} className="inline-block mr-2" />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="rounded-2xl bg-gradient-to-r from-cyan-400 to-sky-500 px-4 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/10 hover:brightness-110"
+              >
+                <User size={16} className="inline-block mr-2" />
+                Login
+              </Link>
+            )}
+          </div>
+        </nav>
       </div>
-    </nav>
+    </header>
   );
 };
 
