@@ -29,7 +29,7 @@ export const CartProvider = ({ children }) => {
       setCartItems([...cartItems, {
         product: product._id,
         name: product.name,
-        image: product.image ? product.image : `https://ui-avatars.com/api/?name=${encodeURIComponent(product.name)}&background=00F0FF&color=050505`,
+        image: product.image || product.images?.[0]?.url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.name)}&background=00F0FF&color=050505`,
         price: product.price,
         qty
       }]);

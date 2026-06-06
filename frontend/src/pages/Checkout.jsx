@@ -3,9 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { CartContext } from '../context/CartContext';
 import { AuthContext } from '../context/AuthContext';
-import { CreditCard, Truck, AlertCircle, CheckCircle } from 'lucide-react';
+import { CreditCard, Truck, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
-import './Login.css';
 
 const Checkout = () => {
   const { cartItems, itemsPrice, clearCart } = useContext(CartContext);
@@ -61,61 +60,129 @@ const Checkout = () => {
   };
 
   return (
-    <div className="container" style={{maxWidth: '800px', paddingTop: '20px'}}>
-      <h2 style={{marginBottom: '30px'}}><Truck size={24} style={{verticalAlign: 'text-bottom', marginRight: '10px'}}/> Secure Checkout</h2>
-      
+    <div className="container px-4 sm:px-6 lg:px-8 pb-20 pt-12">
+      <div className="mb-10 rounded-[32px] border border-white/10 bg-slate-950/90 p-8 shadow-2xl shadow-slate-950/20">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm uppercase tracking-[0.35em] text-cyan-300/80">Secure checkout</p>
+            <h1 className="mt-3 text-4xl font-semibold text-white">Complete your order</h1>
+          </div>
+          <div className="inline-flex items-center gap-3 rounded-full bg-slate-900/80 px-4 py-3 text-sm font-semibold text-slate-100">
+            <Truck size={18} /> Shipping & payment
+          </div>
+        </div>
+      </div>
+
       {error && (
-        <div className="error-message" style={{marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px'}}>
-          <AlertCircle /> {error}
+        <div className="mb-8 rounded-[28px] border border-rose-500/20 bg-rose-500/10 p-5 text-sm text-rose-200 shadow-lg shadow-rose-500/10">
+          <div className="inline-flex items-center gap-3 text-rose-200">
+            <AlertCircle size={20} />
+            <span>{error}</span>
+          </div>
         </div>
       )}
 
-      <div style={{display: 'grid', gridTemplateColumns: '1fr', gap: '30px'}}>
-        <div className="glass-panel" style={{padding: '30px'}}>
-          <h3 style={{marginBottom: '20px'}}>Shipping Information</h3>
-          <form onSubmit={handlePlaceOrder}>
-            <div className="form-group">
-              <label>Address</label>
-              <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} required />
-            </div>
-            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
-              <div className="form-group">
-                <label>City</label>
-                <input type="text" value={city} onChange={(e) => setCity(e.target.value)} required />
-              </div>
-              <div className="form-group">
-                <label>Postal Code</label>
-                <input type="text" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} required />
-              </div>
-            </div>
-            <div className="form-group">
-              <label>Country</label>
-              <input type="text" value={country} onChange={(e) => setCountry(e.target.value)} required />
+      <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+        <div className="rounded-[32px] border border-white/10 bg-slate-950/90 p-8 shadow-2xl shadow-slate-950/20">
+          <h2 className="text-2xl font-semibold text-white">Shipping information</h2>
+          <form onSubmit={handlePlaceOrder} className="mt-8 space-y-6">
+            <div>
+              <label className="block text-sm font-semibold text-slate-200">Address</label>
+              <input
+                className="mt-3 w-full rounded-3xl border border-white/10 bg-slate-900/80 px-5 py-4 text-base text-slate-100 outline-none ring-1 ring-transparent transition focus:border-cyan-400 focus:ring-cyan-400/30"
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                required
+              />
             </div>
 
-            <h3 style={{marginTop: '30px', marginBottom: '20px'}}>Order Summary</h3>
-            <div className="summary-row">
-              <span>Items:</span>
-              <span>${itemsPrice.toFixed(2)}</span>
-            </div>
-            <div className="summary-row">
-              <span>Shipping:</span>
-              <span>${shippingPrice.toFixed(2)}</span>
-            </div>
-            <div className="summary-row">
-              <span>Tax (10%):</span>
-              <span>${taxPrice.toFixed(2)}</span>
-            </div>
-            <div style={{height: '1px', background: 'var(--glass-border)', margin: '15px 0'}}></div>
-            <div className="summary-row" style={{fontSize: '1.3rem', fontWeight: 'bold', color: 'var(--accent-primary)', marginBottom: '25px'}}>
-              <span>Total:</span>
-              <span>${totalPrice}</span>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="block text-sm font-semibold text-slate-200">City</label>
+                <input
+                  className="mt-3 w-full rounded-3xl border border-white/10 bg-slate-900/80 px-5 py-4 text-base text-slate-100 outline-none ring-1 ring-transparent transition focus:border-cyan-400 focus:ring-cyan-400/30"
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-200">Postal Code</label>
+                <input
+                  className="mt-3 w-full rounded-3xl border border-white/10 bg-slate-900/80 px-5 py-4 text-base text-slate-100 outline-none ring-1 ring-transparent transition focus:border-cyan-400 focus:ring-cyan-400/30"
+                  type="text"
+                  value={postalCode}
+                  onChange={(e) => setPostalCode(e.target.value)}
+                  required
+                />
+              </div>
             </div>
 
-            <button type="submit" className="btn-primary" style={{width: '100%', padding: '16px', fontSize: '1.1rem'}} disabled={loading}>
-              {loading ? 'Processing...' : <><CreditCard size={20} style={{verticalAlign: 'text-bottom', marginRight: '8px'}}/> Place Order</>}
+            <div>
+              <label className="block text-sm font-semibold text-slate-200">Country</label>
+              <input
+                className="mt-3 w-full rounded-3xl border border-white/10 bg-slate-900/80 px-5 py-4 text-base text-slate-100 outline-none ring-1 ring-transparent transition focus:border-cyan-400 focus:ring-cyan-400/30"
+                type="text"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="rounded-[28px] border border-white/10 bg-slate-900/90 p-6">
+              <h3 className="text-lg font-semibold text-white">Order summary</h3>
+              <div className="mt-6 space-y-4 text-sm text-slate-300">
+                <div className="flex items-center justify-between">
+                  <span>Items</span>
+                  <span>${itemsPrice.toFixed(2)}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Shipping</span>
+                  <span>${shippingPrice.toFixed(2)}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Tax (10%)</span>
+                  <span>${taxPrice.toFixed(2)}</span>
+                </div>
+                <div className="h-px bg-white/5" />
+                <div className="flex items-center justify-between text-lg font-semibold text-white">
+                  <span>Total</span>
+                  <span>${totalPrice}</span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="inline-flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-cyan-400 to-sky-500 px-6 py-4 text-base font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <CreditCard size={20} />
+              {loading ? 'Processing...' : 'Place order'}
             </button>
           </form>
+        </div>
+
+        <div className="rounded-[32px] border border-white/10 bg-slate-950/90 p-8 shadow-2xl shadow-slate-950/20">
+          <div className="flex items-center gap-4 rounded-[28px] border border-cyan-400/10 bg-cyan-400/10 p-5">
+            <Truck size={22} className="text-cyan-300" />
+            <div>
+              <p className="text-sm uppercase tracking-[0.35em] text-cyan-200/80">Fast delivery</p>
+              <p className="mt-2 text-base font-semibold text-white">Free shipping on orders over $150</p>
+            </div>
+          </div>
+          <div className="mt-6 space-y-5 text-slate-400">
+            <div className="rounded-[28px] bg-slate-900/80 p-5">
+              <p className="font-semibold text-white">Trusted payment</p>
+              <p className="mt-2 text-sm">Secure checkout with encrypted card processing.</p>
+            </div>
+            <div className="rounded-[28px] bg-slate-900/80 p-5">
+              <p className="font-semibold text-white">24/7 support</p>
+              <p className="mt-2 text-sm">Our team is available anytime for order assistance.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
