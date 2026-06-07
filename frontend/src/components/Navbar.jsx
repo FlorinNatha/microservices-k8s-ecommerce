@@ -29,13 +29,24 @@ const Navbar = () => {
 
         <nav className={`flex-1 items-center justify-between gap-6 transition-all sm:flex ${open ? 'block' : 'hidden'} sm:block`}>
           <div className="mb-4 flex flex-col gap-4 sm:mb-0 sm:flex-row sm:items-center">
-            <Link to="/" className="text-sm font-medium uppercase tracking-[0.26em] text-slate-400 hover:text-white sm:text-base">Home</Link>
-            <Link to="/products" className="text-sm font-medium uppercase tracking-[0.26em] text-slate-400 hover:text-white sm:text-base">Products</Link>
-            <Link to="/cart" className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 text-sm font-semibold text-slate-100 hover:bg-slate-900/95 sm:px-5">
+            <Link to="/" className="text-sm font-medium uppercase tracking-[0.26em] text-slate-400 hover:text-cyan-400 transition-colors sm:text-base">Home</Link>
+            <Link to="/products" className="text-sm font-medium uppercase tracking-[0.26em] text-slate-400 hover:text-cyan-400 transition-colors sm:text-base">Products</Link>
+            
+            <div className="relative hidden lg:block ml-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+              <input 
+                type="text" 
+                placeholder="Search products..." 
+                className="w-48 rounded-full border border-white/10 bg-slate-900/50 py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-500 transition-all focus:w-64 focus:border-cyan-400/50 focus:outline-none focus:ring-1 focus:ring-cyan-400/50"
+              />
+            </div>
+            
+            <Link to="/cart" className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-2.5 text-sm font-semibold text-slate-100 hover:bg-slate-900/95 transition sm:px-5 ml-2">
               <ShoppingCart size={18} />
-              Cart {cartItemsCount > 0 ? `(${cartItemsCount})` : ''}
+              Cart {cartItemsCount > 0 ? <span className="ml-1 rounded-full bg-cyan-400 px-2 py-0.5 text-xs text-slate-950">{cartItemsCount}</span> : ''}
             </Link>
-            <div className="hidden sm:flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3">
+            
+            <div className="hidden xl:flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-2.5 ml-2">
               <Phone size={18} className="text-cyan-300" />
               <div className="text-left text-xs leading-4 text-slate-400">
                 <p>Call us</p>
