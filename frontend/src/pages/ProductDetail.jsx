@@ -33,7 +33,13 @@ const ProductDetail = () => {
   if (error) return <div className="container px-4 sm:px-6 lg:px-8 pt-20 text-red-400">{error}</div>;
   if (!product) return <div className="container px-4 sm:px-6 lg:px-8 pt-20">Product not found</div>;
 
-  const imageUrl = product.image || product.images?.[0]?.url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.name)}&background=00F0FF&color=050505&size=800&font-size=0.33`;
+  // Strictly check if image exists and is a valid URL, otherwise fallback to a premium default
+  const isValidUrl = (url) => url && typeof url === 'string' && (url.startsWith('http') || url.startsWith('data:image') || url.startsWith('/'));
+  
+  const validImage = isValidUrl(product.image) ? product.image : null;
+  const validArrayImage = (product.images && product.images[0]?.url && isValidUrl(product.images[0].url)) ? product.images[0].url : null;
+  const defaultImage = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80';
+  const imageUrl = validImage || validArrayImage || defaultImage;
 
   const handleAddToCart = () => {
     addToCart(product, qty);

@@ -1,6 +1,6 @@
-import React, { useContext, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ShoppingCart, User, Package, LogOut, Search, Phone, Menu, X } from 'lucide-react';
+import React, { useContext, useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { ShoppingBag, Search, Menu, X, User, Shield } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import { CartContext } from '../context/CartContext';
 
@@ -8,82 +8,97 @@ const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
   const { cartItemsCount } = useContext(CartContext);
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
+
+  // Make navbar solid when scrolling
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Is home page (needs transparent bg at top)
+  const isHome = location.pathname === '/';
+  const navBg = scrolled || !isHome ? 'bg-[#4a1c40]/95 backdrop-blur-md shadow-lg' : 'bg-transparent';
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl">
-      <div className="container flex items-center justify-between gap-4 py-4">
-        <Link to="/" className="flex items-center gap-3 text-xl font-semibold tracking-tight text-slate-100">
-          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300 shadow-lg shadow-cyan-500/10">
-            <Package size={24} />
-          </span>
-          <span>HPhone</span>
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-white/10 ${navBg}`}>
+      <div className="container mx-auto px-6 h-20 flex items-center justify-between">
+        {/* Left: Logo */}
+        <Link to="/" className="text-2xl font-bold tracking-widest text-white uppercase">
+          HPHONE
         </Link>
 
-        <button
-          className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-slate-900/70 p-3 text-slate-200 hover:bg-slate-900/90 sm:hidden"
-          onClick={() => setOpen((value) => !value)}
-          aria-label="Toggle menu"
-        >
-          {open ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        {/* Center: Links */}
+        <nav className="hidden lg:flex items-center gap-8">
+          <Link to="/" className="text-sm font-semibold uppercase tracking-wider text-white hover:text-pink-300 transition-colors">Home</Link>
+          <Link to="/products" className="text-sm font-semibold uppercase tracking-wider text-white hover:text-pink-300 transition-colors">Shop</Link>
+          <Link to="/products?category=Headphones" className="text-sm font-semibold uppercase tracking-wider text-white hover:text-pink-300 transition-colors">Pages</Link>
+          <Link to="/products?category=Earbuds" className="text-sm font-semibold uppercase tracking-wider text-white hover:text-pink-300 transition-colors">Blog</Link>
+          <a href="#" className="text-sm font-semibold uppercase tracking-wider text-white hover:text-pink-300 transition-colors">Contact</a>
+        </nav>
 
-        <nav className={`flex-1 items-center justify-between gap-6 transition-all sm:flex ${open ? 'block' : 'hidden'} sm:block`}>
-          <div className="mb-4 flex flex-col gap-4 sm:mb-0 sm:flex-row sm:items-center">
-            <Link to="/" className="text-sm font-medium uppercase tracking-[0.26em] text-slate-400 hover:text-cyan-400 transition-colors sm:text-base">Home</Link>
-            <Link to="/products" className="text-sm font-medium uppercase tracking-[0.26em] text-slate-400 hover:text-cyan-400 transition-colors sm:text-base">Products</Link>
-            
-            <div className="relative hidden lg:block ml-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
-              <input 
-                type="text" 
-                placeholder="Search products..." 
-                className="w-48 rounded-full border border-white/10 bg-slate-900/50 py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-500 transition-all focus:w-64 focus:border-cyan-400/50 focus:outline-none focus:ring-1 focus:ring-cyan-400/50"
-              />
-            </div>
-            
-            <Link to="/cart" className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-2.5 text-sm font-semibold text-slate-100 hover:bg-slate-900/95 transition sm:px-5 ml-2">
-              <ShoppingCart size={18} />
-              Cart {cartItemsCount > 0 ? <span className="ml-1 rounded-full bg-cyan-400 px-2 py-0.5 text-xs text-slate-950">{cartItemsCount}</span> : ''}
-            </Link>
-            
-            <div className="hidden xl:flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-2.5 ml-2">
-              <Phone size={18} className="text-cyan-300" />
-              <div className="text-left text-xs leading-4 text-slate-400">
-                <p>Call us</p>
-                <p className="font-semibold text-slate-200">(+123) 888 9999</p>
-              </div>
-            </div>
-          </div>
+        {/* Right: Icons & Auth */}
+        <div className="hidden lg:flex items-center gap-6 text-white">
+          <button className="hover:text-pink-300 transition-colors">
+            <Search size={20} />
+          </button>
+          
+          <Link to="/cart" className="relative hover:text-pink-300 transition-colors flex items-center">
+            <ShoppingBag size={20} />
+            <span className="absolute -top-2 -right-2 text-[10px] font-bold bg-white text-purple-900 rounded-full h-4 w-4 flex items-center justify-center">
+              {cartItemsCount}
+            </span>
+          </Link>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-3 pl-4 border-l border-white/20">
             {user ? (
               <>
                 {user.role === 'admin' && (
-                  <Link to="/admin" className="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-sm font-semibold text-cyan-200 hover:bg-cyan-400/15">
-                    Admin
+                  <Link to="/admin" className="text-xs font-bold uppercase tracking-wider bg-white/10 px-3 py-1.5 rounded-full hover:bg-white/20 transition flex items-center gap-1">
+                    <Shield size={14} /> Admin
                   </Link>
                 )}
-                <span className="rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-slate-200">Hi, {user.username}</span>
-                <button
-                  onClick={logout}
-                  className="rounded-2xl bg-gradient-to-r from-cyan-400 to-sky-500 px-4 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/10 hover:brightness-110"
-                >
-                  <LogOut size={16} className="inline-block mr-2" />
+                <button onClick={logout} className="text-xs font-bold uppercase tracking-wider bg-pink-500 hover:bg-pink-400 px-4 py-1.5 rounded-full transition text-white">
                   Logout
                 </button>
               </>
             ) : (
-              <Link
-                to="/login"
-                className="rounded-2xl bg-gradient-to-r from-cyan-400 to-sky-500 px-4 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/10 hover:brightness-110"
-              >
-                <User size={16} className="inline-block mr-2" />
-                Login
+              <Link to="/login" className="text-xs font-bold uppercase tracking-wider bg-white/10 hover:bg-white/20 px-4 py-1.5 rounded-full transition flex items-center gap-1">
+                <User size={14} /> Login
               </Link>
             )}
           </div>
-        </nav>
+        </div>
+
+        {/* Mobile menu button */}
+        <button className="lg:hidden text-white" onClick={() => setOpen(!open)}>
+          {open ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </div>
+
+      {/* Mobile Nav */}
+      {open && (
+        <div className="lg:hidden absolute top-20 left-0 w-full bg-[#4a1c40] border-b border-white/10 shadow-xl py-4 px-6 flex flex-col gap-4">
+          <Link to="/" onClick={() => setOpen(false)} className="text-sm font-semibold uppercase tracking-wider text-white">Home</Link>
+          <Link to="/products" onClick={() => setOpen(false)} className="text-sm font-semibold uppercase tracking-wider text-white">Shop</Link>
+          <Link to="/cart" onClick={() => setOpen(false)} className="text-sm font-semibold uppercase tracking-wider text-white flex items-center justify-between">
+            Cart <span className="bg-white text-purple-900 rounded-full px-2 py-0.5 text-xs">{cartItemsCount}</span>
+          </Link>
+          <hr className="border-white/10" />
+          {user ? (
+            <div className="flex justify-between items-center">
+              {user.role === 'admin' && <Link to="/admin" className="text-sm text-pink-300 font-bold uppercase">Admin</Link>}
+              <button onClick={() => { logout(); setOpen(false); }} className="text-sm text-white font-bold uppercase">Logout</button>
+            </div>
+          ) : (
+            <Link to="/login" onClick={() => setOpen(false)} className="text-sm text-white font-bold uppercase">Login</Link>
+          )}
+        </div>
+      )}
     </header>
   );
 };
