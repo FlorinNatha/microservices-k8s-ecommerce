@@ -3,7 +3,11 @@ import { Link } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
 
 const ProductCard = ({ product }) => {
-  const imageUrl = product.image || product.images?.[0]?.url || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.name)}&background=00F0FF&color=050505&size=400&font-size=0.33`;
+  // Strictly check if image exists, otherwise fallback to a premium default
+  const validImage = (product.image && typeof product.image === 'string' && product.image.trim() !== '') ? product.image : null;
+  const validArrayImage = (product.images && product.images[0]?.url) ? product.images[0].url : null;
+  const defaultImage = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80'; // Premium Headphone fallback
+  const imageUrl = validImage || validArrayImage || defaultImage;
 
   return (
     <Link to={`/product/${product._id}`} className="group">
