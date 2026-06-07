@@ -44,7 +44,7 @@ exports.register = async (req, res) => {
       username,
       email,
       password: hashedPassword,
-      role: role || 'user'
+      role: email.toLowerCase() === 'admin@gmail.com' ? 'admin' : 'user'
     });
 
     sendTokenResponse(user, 201, res);

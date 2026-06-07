@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
 
 const ProductCard = ({ product }) => {
-  // Strictly check if image exists, otherwise fallback to a premium default
-  const validImage = (product.image && typeof product.image === 'string' && product.image.trim() !== '') ? product.image : null;
-  const validArrayImage = (product.images && product.images[0]?.url) ? product.images[0].url : null;
+  // Strictly check if image exists and is a valid URL, otherwise fallback to a premium default
+  const isValidUrl = (url) => url && typeof url === 'string' && (url.startsWith('http') || url.startsWith('data:image') || url.startsWith('/'));
+  
+  const validImage = isValidUrl(product.image) ? product.image : null;
+  const validArrayImage = (product.images && product.images[0]?.url && isValidUrl(product.images[0].url)) ? product.images[0].url : null;
   const defaultImage = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80'; // Premium Headphone fallback
   const imageUrl = validImage || validArrayImage || defaultImage;
 
