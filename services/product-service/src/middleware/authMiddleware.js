@@ -10,15 +10,16 @@ exports.protect = async (req, res, next) => {
     }
 
     if (!token) {
-      return res.status(401).json({ status: 'error', message: 'Not authorized to access this route' });
+      return res.status(401).json({ status: 'error', message: 'Not authorized to access this route (token missing)' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_key');
+    const secret = process.env.JWT_SECRET || 'super_secret_jwt_key_for_auth_development';
+    const decoded = jwt.verify(token, secret);
     req.user = decoded;
     
     next();
   } catch (error) {
-    res.status(401).json({ status: 'error', message: 'Not authorized to access this route', details: error.message });
+    res.status(401).json({ status: 'error', message: 'Not authorized to access this route (verification failed)', details: error.message });
   }
 };
 
