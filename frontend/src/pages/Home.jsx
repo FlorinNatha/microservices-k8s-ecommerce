@@ -14,6 +14,8 @@ const Home = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -29,6 +31,9 @@ const Home = () => {
 
     fetchProducts();
   }, []);
+
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const currentProducts = products.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <div className="pb-16">
@@ -115,10 +120,34 @@ const Home = () => {
             <p>{error}</p>
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {products.map((product) => (
-              <ProductCard key={product._id} product={product} />
-            ))}
+          <div>
+            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              {currentProducts.map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+            
+            {totalPages > 1 && (
+              <div className="mt-12 flex justify-center gap-4">
+                <button 
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className={`rounded-full border border-white/10 px-6 py-2.5 text-sm font-semibold text-slate-100 transition ${currentPage === 1 ? 'cursor-not-allowed opacity-50' : 'bg-white/5 hover:bg-white/10'}`}
+                >
+                  Previous
+                </button>
+                <span className="flex items-center text-sm font-medium text-slate-400">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button 
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className={`rounded-full border border-white/10 px-6 py-2.5 text-sm font-semibold text-slate-100 transition ${currentPage === totalPages ? 'cursor-not-allowed opacity-50' : 'bg-white/5 hover:bg-white/10'}`}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         )}
       </section>
