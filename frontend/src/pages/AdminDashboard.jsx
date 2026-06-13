@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { PlusCircle, ShieldAlert, Trash2 } from 'lucide-react';
+import { PlusCircle, ShieldAlert, Trash2, Edit2, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import './Login.css';
 
@@ -14,6 +14,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     fetchProducts();
@@ -48,26 +49,55 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleEditProduct = (product) => {
+    setName(product.name);
+    setDescription(product.description);
+    setPrice(product.price);
+    setStock(product.stock);
+    setCategory(product.category);
+    setImage(product.images && product.images.length > 0 ? product.images[0].url : '');
+    setEditingId(product._id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEdit = () => {
+    setName('');
+    setDescription('');
+    setPrice('');
+    setStock('');
+    setCategory('');
+    setImage('');
+    setEditingId(null);
+  };
+
   const handleAddProduct = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const newProduct = {
+      const productData = {
         name,
         description,
         price: Number(price),
         stock: Number(stock),
         category,
-        image
+        images: image ? [{ url: image }] : []
       };
 
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:8000/api/products', newProduct, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
       
-      toast.success('Product created successfully!', { icon: '✅' });
+      if (editingId) {
+        await axios.put(`http://localhost:8000/api/products/${editingId}`, productData, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        toast.success('Product updated successfully!', { icon: '✅' });
+        setEditingId(null);
+      } else {
+        await axios.post('http://localhost:8000/api/products', productData, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        toast.success('Product created successfully!', { icon: '✅' });
+      }
       
       // Clear form
       setName('');
@@ -79,7 +109,7 @@ const AdminDashboard = () => {
       fetchProducts(); // Refresh list
       
     } catch (err) {
-      const errorMsg = err.response?.data?.details || err.response?.data?.message || 'Failed to create product';
+      const errorMsg = err.response?.data?.details || err.response?.data?.message || 'Failed to save product';
       toast.error(errorMsg);
     } finally {
       setLoading(false);
@@ -94,8 +124,8 @@ const AdminDashboard = () => {
             <ShieldAlert size={32} />
           </div>
           <div>
-            <h2 style={{margin: 0}}>Admin Dashboard</h2>
-            <p style={{color: 'var(--text-secondary)', margin: 0}}>Add new products to the catalog</p>
+            <h2 style={{margin: 0}}>{editingId ? 'Edit Product' : 'Admin Dashboard'}</h2>
+            <p style={{color: 'var(--text-secondary)', margin: 0}}>{editingId ? 'Update the details of the selected product' : 'Add new products to the catalog'}</p>
           </div>
         </div>
 
@@ -159,10 +189,17 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          <button type="submit" className="btn-primary" style={{width: '100%', marginTop: '20px', padding: '16px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px'}} disabled={loading}>
-            <PlusCircle size={20} />
-            {loading ? 'Creating...' : 'Add Product'}
-          </button>
+          <div style={{display: 'flex', gap: '15px', marginTop: '20px'}}>
+            <button type="submit" className="btn-primary" style={{flex: 1, padding: '16px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px'}} disabled={loading}>
+              <PlusCircle size={20} />
+              {loading ? 'Saving...' : editingId ? 'Update Product' : 'Add Product'}
+            </button>
+            {editingId && (
+              <button type="button" onClick={cancelEdit} style={{background: 'rgba(255, 255, 255, 0.1)', color: 'white', border: 'none', borderRadius: '8px', padding: '16px 24px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px'}}>
+                <XCircle size={20} /> Cancel
+              </button>
+            )}
+          </div>
         </form>
       </div>
 
@@ -183,19 +220,30 @@ const AdminDashboard = () => {
             {products.map(product => (
               <div key={product._id} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--glass-border)', borderRadius: '12px'}}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
-                  {product.image && <img src={product.image} alt={product.name} style={{width: '50px', height: '50px', objectFit: 'cover', borderRadius: '8px'}} />}
+                  {product.images && product.images.length > 0 && <img src={product.images[0].url} alt={product.name} style={{width: '50px', height: '50px', objectFit: 'cover', borderRadius: '8px'}} />}
                   <div>
                     <h4 style={{margin: 0, color: 'var(--text-primary)'}}>{product.name}</h4>
                     <p style={{margin: 0, fontSize: '12px', color: 'var(--text-secondary)'}}>${product.price.toFixed(2)} - Stock: {product.stock}</p>
                   </div>
                 </div>
-                <button 
-                  onClick={() => handleDeleteProduct(product._id)}
-                  style={{background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '10px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
-                  title="Delete Product"
-                >
-                  <Trash2 size={20} />
-                </button>
+                <div style={{display: 'flex', gap: '10px'}}>
+                  <button 
+                    type="button"
+                    onClick={() => handleEditProduct(product)}
+                    style={{background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: '1px solid rgba(59, 130, 246, 0.2)', padding: '10px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+                    title="Edit Product"
+                  >
+                    <Edit2 size={20} />
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => handleDeleteProduct(product._id)}
+                    style={{background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '10px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+                    title="Delete Product"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
