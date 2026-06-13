@@ -15,6 +15,8 @@ const AdminDashboard = () => {
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [editingId, setEditingId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     fetchProducts();
@@ -115,6 +117,17 @@ const AdminDashboard = () => {
       setLoading(false);
     }
   };
+
+  // Pagination logic
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const currentProducts = products.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // Auto-adjust page if current page becomes empty after deletion
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [products.length, currentPage, totalPages]);
 
   return (
     <div className="container" style={{maxWidth: '800px', paddingTop: '40px'}}>
@@ -217,7 +230,7 @@ const AdminDashboard = () => {
           <p style={{color: 'var(--text-secondary)'}}>No products found.</p>
         ) : (
           <div style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
-            {products.map(product => (
+            {currentProducts.map(product => (
               <div key={product._id} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--glass-border)', borderRadius: '12px'}}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
                   {product.images && product.images.length > 0 && <img src={product.images[0].url} alt={product.name} style={{width: '50px', height: '50px', objectFit: 'cover', borderRadius: '8px'}} />}
@@ -246,6 +259,30 @@ const AdminDashboard = () => {
                 </div>
               </div>
             ))}
+            
+            {totalPages > 1 && (
+              <div style={{display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px'}}>
+                <button 
+                  type="button"
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  style={{background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', opacity: currentPage === 1 ? 0.5 : 1}}
+                >
+                  Previous
+                </button>
+                <span style={{color: 'var(--text-secondary)', display: 'flex', alignItems: 'center'}}>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button 
+                  type="button"
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  style={{background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', opacity: currentPage === totalPages ? 0.5 : 1}}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
