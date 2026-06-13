@@ -134,7 +134,24 @@ const AdminDashboard = () => {
           <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px'}}>
             <div className="form-group">
               <label>Category</label>
-              <input type="text" value={category} onChange={(e) => setCategory(e.target.value)} required placeholder="e.g. Electronics" />
+              <select 
+                value={category} 
+                onChange={(e) => setCategory(e.target.value)} 
+                required
+                style={{
+                  width: '100%', padding: '12px 16px', borderRadius: '8px', 
+                  background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(255, 255, 255, 0.1)',
+                  color: 'var(--text-primary)', fontFamily: 'inherit', fontSize: '1rem',
+                  appearance: 'none'
+                }}
+              >
+                <option value="" disabled>Select Category</option>
+                <option value="Headphones">Headphones</option>
+                <option value="Earbuds">Earbuds</option>
+                <option value="Smartwatches">Smartwatches</option>
+                <option value="Speakers">Speakers</option>
+                <option value="Audio Accessories">Audio Accessories</option>
+              </select>
             </div>
             <div className="form-group">
               <label>Image URL</label>
