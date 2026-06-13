@@ -3,6 +3,7 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { Package, Truck, Star, CreditCard, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const Profile = () => {
   const { user } = useContext(AuthContext);
@@ -51,6 +52,35 @@ const Profile = () => {
     if (activeTab === 'To Review') return order.isDelivered; // Delivered means ready to review
     return true;
   });
+
+  const handlePayment = async (orderId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const paymentDetails = {
+        id: `mock-txn-${Date.now()}`,
+        status: 'COMPLETED',
+        update_time: new Date().toISOString(),
+        payer: {
+          email_address: user.email
+        }
+      };
+
+      await axios.put(`http://localhost:8000/api/orders/${orderId}/pay`, paymentDetails, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      toast.success('Payment successful!');
+      
+      // Update local state to reflect payment
+      setOrders(orders.map(order => 
+        order._id === orderId 
+          ? { ...order, isPaid: true, paidAt: new Date().toISOString() } 
+          : order
+      ));
+    } catch (err) {
+      toast.error('Payment failed. Please try again.');
+    }
+  };
 
   return (
     <div className="container px-4 sm:px-6 lg:px-8 pt-8 pb-20">
@@ -169,7 +199,10 @@ const Profile = () => {
 
                   <div className="mt-6 flex justify-end gap-3">
                     {!order.isPaid && (
-                      <button className="px-5 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-medium transition text-sm">
+                      <button 
+                        onClick={() => handlePayment(order._id)}
+                        className="px-5 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-medium transition text-sm"
+                      >
                         Pay Now
                       </button>
                     )}
