@@ -10,6 +10,7 @@ import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import AdminDashboard from './pages/AdminDashboard';
+import Profile from './pages/Profile';
 import AdminRoute from './components/AdminRoute';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -32,6 +33,7 @@ function App() {
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/admin" element={
                   <AdminRoute>
                     <AdminDashboard />

@@ -62,6 +62,9 @@ const Navbar = () => {
                     <Shield size={14} /> Admin
                   </Link>
                 )}
+                <Link to="/profile" className="text-xs font-bold uppercase tracking-wider bg-white/10 px-3 py-1.5 rounded-full hover:bg-white/20 transition flex items-center gap-1">
+                  <User size={14} /> Profile
+                </Link>
                 <button onClick={logout} className="text-xs font-bold uppercase tracking-wider bg-pink-500 hover:bg-pink-400 px-4 py-1.5 rounded-full transition text-white">
                   Logout
                 </button>
@@ -90,8 +93,9 @@ const Navbar = () => {
           </Link>
           <hr className="border-white/10" />
           {user ? (
-            <div className="flex justify-between items-center">
-              {user.role === 'admin' && <Link to="/admin" className="text-sm text-pink-300 font-bold uppercase">Admin</Link>}
+            <div className="flex flex-col gap-4 items-start">
+              {user.role === 'admin' && <Link to="/admin" onClick={() => setOpen(false)} className="text-sm text-pink-300 font-bold uppercase">Admin</Link>}
+              <Link to="/profile" onClick={() => setOpen(false)} className="text-sm text-sky-300 font-bold uppercase">Profile</Link>
               <button onClick={() => { logout(); setOpen(false); }} className="text-sm text-white font-bold uppercase">Logout</button>
             </div>
           ) : (
