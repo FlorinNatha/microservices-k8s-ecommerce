@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: auth-service
@@ -13,10 +13,13 @@ spec:
     metadata:
       labels:
         app: auth-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
     spec:
       containers:
       - name: auth-service
-        image: auth-service:latest
+        image: auth-service:v2
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000
@@ -42,3 +45,4 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "250m"
+

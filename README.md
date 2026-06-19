@@ -18,14 +18,17 @@ The application is broken down into modular, independently deployable services:
 *   **MongoDB**: Primary NoSQL database used by the microservices for data persistence.
 *   **Redis**: In-memory data structure store used for caching and session management.
 *   **RabbitMQ**: Message broker used for asynchronous communication and event-driven architecture between the microservices.
+*   **NGINX Ingress Controller**: Manages external access to the services, providing path-based routing.
+*   **Prometheus & Grafana**: Full observability stack for real-time application and performance monitoring.
 
 ## 🚀 Technologies Used
 
 *   **Frontend**: React.js, Vite, Node.js (v20+)
 *   **Backend**: Node.js, Express.js
 *   **Databases & Messaging**: MongoDB, Redis, RabbitMQ
+*   **Observability**: Prometheus, Grafana, prom-client
 *   **Containerization**: Docker, Docker Compose
-*   **Orchestration**: Kubernetes, Minikube
+*   **Orchestration**: Kubernetes, Minikube, NGINX Ingress
 *   **Version Control**: Git, GitHub
 
 ## 📋 Prerequisites
@@ -81,14 +84,22 @@ kubectl get svc
 ```
 
 ### 6. Access the Application
-The frontend is exposed via a Kubernetes `LoadBalancer`. To access it locally on Windows/Mac, start the Minikube tunnel in a separate terminal:
+The application uses the **NGINX Ingress Controller** for routing. To access it locally on Windows/Mac, start the Minikube tunnel in a separate terminal:
 ```bash
 minikube tunnel
 ```
 Once the tunnel is running, open your browser and navigate to:
 **http://127.0.0.1** (or `http://localhost`)
 
-The API Gateway is exposed via a NodePort and can be accessed at `http://localhost:30080`.
+* `/api/*` -> API Gateway -> Backend Services
+* `/*` -> Frontend UI
+
+### 7. Observability & Monitoring
+Prometheus is configured to automatically scrape metrics from all Node.js microservices. To view the real-time metrics dashboards, use port-forwarding to access Grafana securely:
+```bash
+kubectl port-forward svc/grafana 3000:80
+```
+Then navigate to **http://localhost:3000** (Default Login: `admin` / `admin`). You can import community Node.js dashboards (e.g., ID: 11159) to visualize memory, CPU, and event loop metrics.
 
 ## 🤝 Contributing
 Contributions, issues, and feature requests are welcome! Feel free to check the issues page.

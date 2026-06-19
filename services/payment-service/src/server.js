@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
@@ -10,6 +10,16 @@ const app = express();
 
 // Middleware
 app.use(express.json());
+
+// Prometheus Metrics Setup
+const client = require('prom-client');
+client.collectDefaultMetrics();
+
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', client.register.contentType);
+  res.end(await client.register.metrics());
+});
+
 app.use(cors());
 
 // Routes
@@ -38,3 +48,4 @@ app.listen(PORT, () => {
   console.log(`Payment Service running on port ${PORT}`);
   connectDB();
 });
+
