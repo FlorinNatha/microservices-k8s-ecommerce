@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: user-service
@@ -13,10 +13,13 @@ spec:
     metadata:
       labels:
         app: user-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5001"
     spec:
       containers:
       - name: user-service
-        image: user-service:latest
+        image: user-service:v2
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5001
@@ -40,3 +43,4 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "250m"
+

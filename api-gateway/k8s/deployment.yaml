@@ -13,10 +13,13 @@ spec:
     metadata:
       labels:
         app: api-gateway
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
     spec:
       containers:
       - name: api-gateway
-        image: api-gateway:v2
+        image: api-gateway:v3
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080

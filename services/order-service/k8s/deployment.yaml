@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: order-service
@@ -13,10 +13,13 @@ spec:
     metadata:
       labels:
         app: order-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5003"
     spec:
       containers:
       - name: order-service
-        image: order-service:latest
+        image: order-service:v2
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5003
@@ -40,3 +43,4 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "250m"
+

@@ -13,6 +13,15 @@ const app = express();
 app.use(cors());
 app.use(morgan('dev')); // Logger
 
+// Prometheus Metrics Setup
+const client = require('prom-client');
+client.collectDefaultMetrics();
+
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', client.register.contentType);
+  res.end(await client.register.metrics());
+});
+
 // Setup Proxies
 // Note: We don't use express.json() globally here because http-proxy-middleware 
 // works best when it proxies the raw request stream to downstream services.

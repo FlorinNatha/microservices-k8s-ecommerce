@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: payment-service
@@ -13,10 +13,13 @@ spec:
     metadata:
       labels:
         app: payment-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5004"
     spec:
       containers:
       - name: payment-service
-        image: payment-service:latest
+        image: payment-service:v2
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5004
@@ -45,3 +48,4 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "250m"
+
