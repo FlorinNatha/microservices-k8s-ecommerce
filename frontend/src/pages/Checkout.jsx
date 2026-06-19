@@ -33,6 +33,7 @@ const Checkout = () => {
     setError('');
 
     try {
+      const token = localStorage.getItem('token');
       const orderData = {
         orderItems: cartItems,
         shippingAddress: { address, city, postalCode, country },
@@ -43,14 +44,31 @@ const Checkout = () => {
         totalPrice
       };
 
-      const res = await axios.post('http://localhost:8000/api/orders', orderData);
+      // 1. Create the order
+      const res = await axios.post('http://localhost:8000/api/orders', orderData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const createdOrder = res.data.data.order;
+
+      // 2. Automatically mark as paid (since this is a simulated checkout)
+      const paymentDetails = {
+        id: `mock-txn-${Date.now()}`,
+        status: 'COMPLETED',
+        update_time: new Date().toISOString(),
+        payer: { email_address: user.email }
+      };
+
+      await axios.put(`http://localhost:8000/api/orders/${createdOrder._id}/pay`, paymentDetails, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       
       clearCart();
-      toast.success('Order placed successfully! Redirecting...', {
+      toast.success('Payment successful! Order placed.', {
         duration: 4000,
         icon: '🎉',
       });
-      navigate('/');
+      navigate('/profile');
       
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to place order');
