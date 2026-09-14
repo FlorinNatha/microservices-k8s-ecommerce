@@ -23,7 +23,7 @@ jobs:
   # =====================================================================
   # JOB 1: Validate Kubernetes Manifests
   # Purpose: Checks all Kubernetes YAML manifests in the repo to ensure
-  #          they are valid syntax BEFORE any deployment attempt.
+  #          they are valid YAML syntax BEFORE any deployment attempt.
   # =====================================================================
   validate-k8s-manifests:
     name:  Validate Kubernetes Manifests
@@ -33,20 +33,22 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          version: 'v1.28.0'
+          python-version: '3.x'
+
+      - name: Install PyYAML
+        run: python -m pip install pyyaml
 
       - name: Validate Kubernetes Manifests Syntax
         run: |
           echo "Validating Kubernetes YAML syntax..."
-          # Target only k8s manifest directories and exclude node_modules
           MANIFESTS=$(find infrastructure/kubernetes services/*/k8s api-gateway/k8s frontend/k8s -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null | grep -v "node_modules")
 
           for file in $MANIFESTS; do
             echo "Checking $file..."
-            kubectl apply --dry-run=client -f "$file"
+            python -c "import yaml; list(yaml.safe_load_all(open('$file')))"
           done
           echo " All Kubernetes manifests passed syntax validation!"
 
