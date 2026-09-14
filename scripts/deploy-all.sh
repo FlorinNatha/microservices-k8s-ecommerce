@@ -22,7 +22,7 @@ kubectl apply -f api-gateway/k8s/
 kubectl apply -f frontend/k8s/
 
 echo "4. Deploying Monitoring Stack (Prometheus & Grafana)..."
-kubectl apply -f infrastructure/kubernetes/monitoring/prometheus.yaml
+kubectl apply -f infrastructure/kubernetes/monitoring/prometheus-k8s.yaml
 kubectl apply -f infrastructure/kubernetes/monitoring/grafana.yaml
 
 echo "5. Deploying Ingress Routing..."
