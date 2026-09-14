@@ -21,9 +21,10 @@ echo "3. Deploying API Gateway & Frontend..."
 kubectl apply -f api-gateway/k8s/
 kubectl apply -f frontend/k8s/
 
-echo "4. Deploying Monitoring Stack (Prometheus & Grafana)..."
-kubectl apply -f infrastructure/kubernetes/monitoring/prometheus.yaml
+echo "4. Deploying Monitoring Stack (Prometheus, Grafana, Loki)..."
+kubectl apply -f infrastructure/kubernetes/monitoring/prometheus-k8s.yaml
 kubectl apply -f infrastructure/kubernetes/monitoring/grafana.yaml
+kubectl apply -f infrastructure/kubernetes/monitoring/loki.yaml
 
 echo "5. Deploying Ingress Routing..."
 kubectl apply -f infrastructure/kubernetes/ingress/ingress.yaml

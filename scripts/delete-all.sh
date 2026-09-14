@@ -9,8 +9,9 @@ echo "Removing Ingress..."
 kubectl delete -f infrastructure/kubernetes/ingress/ingress.yaml --ignore-not-found
 
 echo "Removing Monitoring Stack..."
-kubectl delete -f infrastructure/kubernetes/monitoring/prometheus.yaml --ignore-not-found
+kubectl delete -f infrastructure/kubernetes/monitoring/prometheus-k8s.yaml --ignore-not-found
 kubectl delete -f infrastructure/kubernetes/monitoring/grafana.yaml --ignore-not-found
+kubectl delete -f infrastructure/kubernetes/monitoring/loki.yaml --ignore-not-found
 
 echo "Removing API Gateway & Frontend..."
 kubectl delete -f api-gateway/k8s/ --ignore-not-found
