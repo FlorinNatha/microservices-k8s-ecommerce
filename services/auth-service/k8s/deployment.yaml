@@ -1,4 +1,4 @@
-﻿apiVersion: apps/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: auth-service
@@ -38,6 +38,20 @@ spec:
             secretKeyRef:
               name: auth-secret
               key: mongo_uri
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
         resources:
           requests:
             memory: "128Mi"
@@ -45,4 +59,3 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "250m"
-
