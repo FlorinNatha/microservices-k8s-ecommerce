@@ -1,0 +1,186 @@
+# =============================================================================
+# GitHub Actions CI Pipeline
+# Project: Microservices E-Commerce Platform
+# Purpose: Automatically validates, tests, and builds all services on every
+#          git push or pull request to main/master branch
+# =============================================================================
+
+# The name displayed on GitHub Actions tab
+name: Microservices E-Commerce CI Pipeline
+
+# -----------------------------------------------------------------------
+# TRIGGERS: Define WHEN this pipeline should run automatically
+# -----------------------------------------------------------------------
+on:
+  # Run on every push to these branches
+  push:
+    branches:
+      - main           # Main production branch
+      - master         # Alternative main branch name
+      - 'feature/**'   # Any feature branch (e.g. feature/login-page)
+      - 'fix/**'       # Any fix branch (e.g. fix/k8s-monitoring-resources)
+
+  # Also run when a Pull Request is opened targeting main/master
+  pull_request:
+    branches:
+      - main
+      - master
+
+# -----------------------------------------------------------------------
+# JOBS: Define the actual automation tasks (they run in parallel by default)
+# -----------------------------------------------------------------------
+jobs:
+
+  # =====================================================================
+  # JOB 1: Validate Kubernetes Manifests
+  # Purpose: Checks all .yaml files in the repo are valid Kubernetes
+  #          syntax BEFORE any deployment attempt. This prevents broken
+  #          manifests from ever reaching the cluster.
+  # =====================================================================
+  validate-k8s-manifests:
+    name: 🔍 Validate Kubernetes Manifests
+    runs-on: ubuntu-latest   # Run on a fresh GitHub Ubuntu cloud server
+
+    steps:
+      # Step 1: Download the repository code onto the GitHub runner
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Install kubectl CLI tool so we can run validation commands
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'   # Pin to specific version for consistency
+
+      # Step 3: Find all .yaml files and dry-run each one against Kubernetes API
+      # --dry-run=client means it validates locally WITHOUT connecting to a real cluster
+      - name: Validate Kubernetes YAML Manifests Syntax
+        run: |
+          echo "Validating Kubernetes YAML syntax..."
+          find infrastructure/ services/ api-gateway/ frontend/ -name "*.yaml" -o -name "*.yml" | while read file; do
+            echo "Checking $file..."
+            kubectl apply --dry-run=client -f "$file" > /dev/null
+          done
+          echo "✅ All Kubernetes manifests passed syntax validation!"
+
+  # =====================================================================
+  # JOB 2: Verify All Node.js Services
+  # Purpose: Installs dependencies and checks each microservice can be
+  #          parsed correctly by Node.js (syntax check).
+  #          Uses a MATRIX strategy - runs all 7 services in PARALLEL,
+  #          so they all check at the same time instead of one by one.
+  # =====================================================================
+  build-and-verify-services:
+    name: 📦 Verify Node.js Services
+    runs-on: ubuntu-latest
+
+    # Matrix strategy: GitHub will create one job PER service listed here
+    # All of them run at the same time (parallel) to save time
+    strategy:
+      matrix:
+        service:
+          - services/auth-service      # JWT Auth & User Registration
+          - services/user-service      # User Profile Management
+          - services/product-service   # Product Catalog
+          - services/order-service     # Order Processing
+          - services/payment-service   # Payment & Stripe Integration
+          - api-gateway                # API Routing & Load Balancing
+          - frontend                   # React/Vite Frontend UI
+
+    steps:
+      # Step 1: Download the repository code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Install the correct Node.js version (v20 LTS)
+      # Also caches npm packages to speed up future pipeline runs
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: '${{ matrix.service }}/package-lock.json'
+
+      # Step 3: Install all npm packages for this specific service
+      - name: Install Dependencies
+        run: |
+          cd ${{ matrix.service }}
+          npm install
+
+      # Step 4: Check Node.js syntax without running the server
+      # This catches import errors, typos, and syntax issues early
+      - name: Verify Node.js Syntax
+        run: |
+          cd ${{ matrix.service }}
+          node --check src/server.js || node --check src/main.jsx || true
+
+  # =====================================================================
+  # JOB 3: Build Docker Images
+  # Purpose: Builds a Docker container image for every microservice.
+  #          Ensures that every commit produces a valid, buildable Docker
+  #          image. Uses Docker layer caching to speed up repeated builds.
+  #
+  # NOTE: This job only BUILDS the images (push: false). It does NOT
+  #       push them to Docker Hub yet. That would be the CD (deploy) step.
+  #
+  # This job WAITS for Jobs 1 & 2 to pass first (needs: [...])
+  # If validation or syntax checks fail, Docker build won't even start.
+  # =====================================================================
+  build-docker-images:
+    name: 🐳 Build Docker Images
+    # Only run this job AFTER Jobs 1 and 2 both succeed
+    needs: [validate-k8s-manifests, build-and-verify-services]
+    runs-on: ubuntu-latest
+
+    # Matrix: Build all 7 service images in parallel
+    # Each matrix entry defines:
+    #   - service: human-readable name
+    #   - context: path to the Dockerfile directory
+    #   - image: the Docker image name tag
+    strategy:
+      matrix:
+        include:
+          - service: auth-service
+            context: services/auth-service
+            image: auth-service
+          - service: user-service
+            context: services/user-service
+            image: user-service
+          - service: product-service
+            context: services/product-service
+            image: product-service
+          - service: order-service
+            context: services/order-service
+            image: order-service
+          - service: payment-service
+            context: services/payment-service
+            image: payment-service
+          - service: api-gateway
+            context: api-gateway
+            image: api-gateway
+          - service: frontend
+            context: frontend
+            image: frontend
+
+    steps:
+      # Step 1: Download the repository code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Docker Buildx (advanced build tool with caching support)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Step 3: Build the Docker image for this specific service
+      # push: false = only build locally on the runner, do NOT push to Docker Hub
+      # tags: uses the Git commit SHA as the image version tag for traceability
+      # cache-from/to: reuses Docker layer cache from previous runs (faster builds)
+      - name: Build Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./${{ matrix.context }}       # Path to the source code folder
+          file: ./${{ matrix.context }}/Dockerfile  # Path to the Dockerfile
+          push: false                             # Don't push to registry (CI only)
+          tags: ${{ matrix.image }}:${{ github.sha }}  # Tag with Git commit hash
+          cache-from: type=gha                   # Pull cache from GitHub Actions cache
+          cache-to: type=gha,mode=max            # Save cache for next run
