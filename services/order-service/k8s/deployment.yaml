@@ -36,6 +36,8 @@ spec:
             secretKeyRef:
               name: order-secret
               key: mongo_uri
+        - name: RABBITMQ_URL
+          value: "amqp://rabbitmq-service:5672"
         livenessProbe:
           httpGet:
             path: /health
