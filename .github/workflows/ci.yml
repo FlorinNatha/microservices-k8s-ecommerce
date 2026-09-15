@@ -88,7 +88,7 @@ jobs:
   # JOB 3: Build, Security Scan (Trivy), and Push Docker Images
   # =====================================================================
   build-scan-and-push-docker:
-    name: Build, Scan & Push Docker Images
+    name: 🛡️ Build, Scan & Push Docker Images
     needs: [validate-k8s-manifests, build-and-verify-services]
     runs-on: ubuntu-latest
     strategy:
@@ -123,9 +123,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Step 1: Log in to Docker Hub (if secrets are set up in GitHub Repo Settings)
+      # Step 1: Log in to Docker Hub (if secrets are configured)
       - name: Log in to Docker Hub
-        if: ${{ secrets.DOCKER_USERNAME != '' && secrets.DOCKER_PASSWORD != '' }}
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        if: env.DOCKER_USERNAME != '' && env.DOCKER_PASSWORD != ''
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
@@ -141,19 +144,22 @@ jobs:
           tags: ${{ matrix.image }}:${{ github.sha }}
 
       # Step 3: Trivy Security Scan (Scans Docker Image for Vulnerabilities)
-      - name: Run Trivy Vulnerability Scanner
+      - name: 🛡️ Run Trivy Vulnerability Scanner
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: '${{ matrix.image }}:${{ github.sha }}'
           format: 'table'
-          exit-code: '0'   # Change to '1' to fail pipeline on critical vulnerabilities
+          exit-code: '0'
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
       # Step 4: Push Tagged Image to Docker Hub Registry
       - name: Push Docker Image to Registry
-        if: ${{ secrets.DOCKER_USERNAME != '' && secrets.DOCKER_PASSWORD != '' }}
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        if: env.DOCKER_USERNAME != '' && env.DOCKER_PASSWORD != ''
         uses: docker/build-push-action@v5
         with:
           context: ./${{ matrix.context }}
