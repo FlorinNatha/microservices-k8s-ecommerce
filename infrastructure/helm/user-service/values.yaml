@@ -1,0 +1,8 @@
+fullnameOverride: user-service
+image: { registry: "", repository: user-service, tag: "", pullPolicy: IfNotPresent }
+replicaCount: 2
+service: { port: 5001 }
+mongoDatabase: user-db
+resources:
+  requests: { cpu: 100m, memory: 128Mi }
+  limits: { cpu: 250m, memory: 256Mi }

@@ -1,0 +1,7 @@
+prometheus:
+  image: prom/prometheus:v2.45.0
+  scrapeInterval: 15s
+grafana:
+  image: grafana/grafana:10.0.3
+loki:
+  image: grafana/loki:2.9.0

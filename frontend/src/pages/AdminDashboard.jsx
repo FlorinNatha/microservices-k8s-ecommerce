@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { PlusCircle, ShieldAlert, Trash2, Edit2, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -18,10 +18,6 @@ const AdminDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
   const fetchProducts = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -29,12 +25,20 @@ const AdminDashboard = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProducts(response.data.data.products);
-    } catch (error) {
+    } catch {
       toast.error('Failed to fetch products');
     } finally {
       setLoadingProducts(false);
     }
   };
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void fetchProducts();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, []);
 
   const handleDeleteProduct = async (id) => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
@@ -120,14 +124,8 @@ const AdminDashboard = () => {
 
   // Pagination logic
   const totalPages = Math.ceil(products.length / itemsPerPage);
-  const currentProducts = products.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  // Auto-adjust page if current page becomes empty after deletion
-  useEffect(() => {
-    if (currentPage > totalPages && totalPages > 0) {
-      setCurrentPage(totalPages);
-    }
-  }, [products.length, currentPage, totalPages]);
+  const visiblePage = Math.min(currentPage, totalPages || 1);
+  const currentProducts = products.slice((visiblePage - 1) * itemsPerPage, visiblePage * itemsPerPage);
 
   return (
     <div className="container" style={{maxWidth: '800px', paddingTop: '40px'}}>

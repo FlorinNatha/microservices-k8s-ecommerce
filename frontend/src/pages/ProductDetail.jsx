@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ShoppingCart, ArrowLeft, Check, Shield } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, Shield } from 'lucide-react';
 import { CartContext } from '../context/CartContext';
 import toast from 'react-hot-toast';
 

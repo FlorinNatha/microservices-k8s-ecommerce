@@ -1,0 +1,7 @@
+mongodb:
+  image: mongo:7.0
+  storage: 1Gi
+redis:
+  image: redis:7.2-alpine
+rabbitmq:
+  image: rabbitmq:3.13-management

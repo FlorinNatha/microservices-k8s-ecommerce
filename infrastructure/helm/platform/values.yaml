@@ -1,0 +1,9 @@
+secrets:
+  jwtSecret: ""
+  stripeSecretKey: ""
+  grafanaAdminUser: ""
+  grafanaAdminPassword: ""
+ingress:
+  enabled: true
+  className: nginx
+  host: ""

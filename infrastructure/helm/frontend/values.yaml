@@ -1,0 +1,7 @@
+fullnameOverride: frontend
+image: { registry: "", repository: frontend, tag: "", pullPolicy: IfNotPresent }
+replicaCount: 1
+service: { port: 80 }
+resources:
+  requests: { cpu: 100m, memory: 128Mi }
+  limits: { cpu: 250m, memory: 256Mi }

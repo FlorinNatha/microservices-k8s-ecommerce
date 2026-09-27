@@ -1,0 +1,8 @@
+fullnameOverride: order-service
+image: { registry: "", repository: order-service, tag: "", pullPolicy: IfNotPresent }
+replicaCount: 2
+service: { port: 5003 }
+mongoDatabase: order-db
+resources:
+  requests: { cpu: 100m, memory: 128Mi }
+  limits: { cpu: 250m, memory: 256Mi }

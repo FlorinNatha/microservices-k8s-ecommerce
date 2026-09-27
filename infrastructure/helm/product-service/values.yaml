@@ -1,0 +1,8 @@
+fullnameOverride: product-service
+image: { registry: "", repository: product-service, tag: "", pullPolicy: IfNotPresent }
+replicaCount: 2
+service: { port: 5002 }
+mongoDatabase: product-db
+resources:
+  requests: { cpu: 100m, memory: 128Mi }
+  limits: { cpu: 250m, memory: 256Mi }

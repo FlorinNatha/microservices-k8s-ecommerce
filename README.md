@@ -82,7 +82,7 @@ Browser
 api-gateway/                 Express reverse proxy and gateway Kubernetes manifests
 frontend/                    React/Vite application and frontend Kubernetes manifests
 services/                    auth, user, product, order, and payment services
-infrastructure/kubernetes/   MongoDB, Redis, RabbitMQ, ingress, and monitoring manifests
+infrastructure/helm/         Helm charts for infrastructure, services, ingress, and monitoring
 scripts/                     Cluster setup, image build, deployment, and cleanup scripts
 docs/                        Detailed Kubernetes and API design notes
 .github/workflows/ci.yml     CI and container security pipeline
@@ -157,11 +157,11 @@ PAYMENT_SERVICE_URL=http://localhost:5004
 
 For a production-like frontend deployment, update the frontend API base URL to use the ingress host or a Vite environment variable before building. The current source contains several hard-coded `http://localhost:8000` calls.
 
-## Deploy to Minikube
+## Deploy with Helm
 
-The repository includes scripts for the intended deployment order.
+Helm is the single Kubernetes deployment source for local Minikube, CI/CD, production, and future Argo CD management. Do not apply service-level Kubernetes manifests; those duplicated raw manifests have been removed.
 
-### 1. Prepare the cluster
+### Prepare Minikube
 
 From Git Bash:
 
@@ -176,57 +176,30 @@ minikube start --driver=docker
 minikube addons enable ingress
 ```
 
-### 2. Build and load images
+### Deploy registry images
+
+The images must already exist in the configured registry with the exact immutable tag:
 
 ```bash
-./scripts/build-images.sh
+export IMAGE_REGISTRY="docker.io/your-dockerhub-username"
+export IMAGE_TAG="$(git rev-parse --short HEAD)"
+export JWT_SECRET="set-a-development-secret"
+export STRIPE_SECRET_KEY="set-a-test-key"
+export GRAFANA_ADMIN_USER="admin"
+export GRAFANA_ADMIN_PASSWORD="change-this-password"
+
+./scripts/deploy-helm.sh
 ```
 
-This builds and loads these local image tags into Minikube: `auth-service:v2`, `user-service:v2`, `product-service:v2`, `order-service:v2`, `payment-service:v2`, `api-gateway:v3`, and `frontend:latest`.
-
-### 3. Deploy the application
+Verify the release:
 
 ```bash
-./scripts/deploy-all.sh
-```
-
-The deployment script applies infrastructure first, then service secrets and workloads, gateway and frontend, monitoring, and ingress. To apply the manifests manually, use the same order:
-
-```powershell
-kubectl apply -f infrastructure/kubernetes/databases/mongodb.yaml
-kubectl apply -f infrastructure/kubernetes/cache/redis.yaml
-kubectl apply -f infrastructure/kubernetes/messaging/rabbitmq.yaml
-kubectl apply -f services/auth-service/k8s/
-kubectl apply -f services/user-service/k8s/
-kubectl apply -f services/product-service/k8s/
-kubectl apply -f services/order-service/k8s/
-kubectl apply -f services/payment-service/k8s/
-kubectl apply -f api-gateway/k8s/
-kubectl apply -f frontend/k8s/
-kubectl apply -f infrastructure/kubernetes/monitoring/
-kubectl apply -f infrastructure/kubernetes/ingress/ingress.yaml
-```
-
-### 4. Verify and access the cluster
-
-```powershell
-kubectl get pods
-kubectl get services
-kubectl get ingress
-kubectl rollout status deployment/api-gateway
-kubectl rollout status deployment/frontend
-```
-
-Keep this command running in a separate administrator terminal when using the ingress address locally:
-
-```powershell
+kubectl get pods --namespace ecommerce
+kubectl get services --namespace ecommerce
+kubectl get ingress --namespace ecommerce
+kubectl rollout status deployment/api-gateway --namespace ecommerce
+kubectl rollout status deployment/frontend --namespace ecommerce
 minikube tunnel
-```
-
-Then open `http://localhost`. An alternative for the frontend is:
-
-```powershell
-minikube service frontend --url
 ```
 
 The ingress sends `/` to the frontend and `/api` to the gateway.
@@ -234,10 +207,10 @@ The ingress sends `/` to the frontend and `/api` to the gateway.
 ### Remove the deployment
 
 ```bash
-./scripts/delete-all.sh
+./scripts/delete-helm.sh
 ```
 
-This removes the Kubernetes resources selected by the cleanup script. Remove the Minikube cluster itself with `minikube delete` when it is no longer needed.
+No secret values are stored in Git. For shared environments, inject them through GitHub Actions Secrets, External Secrets, Sealed Secrets, or SOPS.
 
 ## Application routes
 
@@ -278,7 +251,7 @@ Every Node.js process also exposes `/health` and `/metrics` on its own service p
 | Product service | Redis and RabbitMQ connection variables in `src/utils` |
 | Product and order services | RabbitMQ connection variables in `src/utils/rabbitmq` |
 
-The exact optional connection defaults are defined in each service's `src` directory. For Kubernetes, edit the service `secret.yaml` files or create environment-specific secrets rather than committing real credentials.
+The exact optional connection defaults are defined in each service's `src` directory. For Kubernetes, inject environment-specific secrets at deployment time rather than committing credentials.
 
 The current development setup uses separate MongoDB databases: `auth-db`, `user-db`, `product-db`, `order-db`, and `payment-db`.
 
@@ -335,14 +308,12 @@ There are currently no implemented automated application tests; each package's `
 
 ### `ErrImagePull` or `ImagePullBackOff`
 
-Confirm the image tag in the Deployment matches the tag loaded into Minikube:
+Confirm that the registry contains every application image with the exact `IMAGE_TAG` used by Helm:
 
 ```powershell
-minikube image ls | Select-String "auth-service|api-gateway|frontend"
-kubectl describe pod <pod-name>
+kubectl describe pod <pod-name> -n ecommerce
+helm get values api-gateway -n ecommerce
 ```
-
-Run `./scripts/build-images.sh` again after changing application code.
 
 ### A service is in `CrashLoopBackOff`
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { Package, Truck, Star, CreditCard, Clock } from 'lucide-react';
@@ -27,7 +27,7 @@ const Profile = () => {
         });
         setOrders(response.data.data.orders);
         setLoading(false);
-      } catch (err) {
+      } catch {
         setError('Failed to fetch orders');
         setLoading(false);
       }
@@ -57,7 +57,7 @@ const Profile = () => {
     try {
       const token = localStorage.getItem('token');
       const paymentDetails = {
-        id: `mock-txn-${Date.now()}`,
+        id: `mock-txn-${orderId}`,
         status: 'COMPLETED',
         update_time: new Date().toISOString(),
         payer: {
@@ -77,7 +77,7 @@ const Profile = () => {
           ? { ...order, isPaid: true, paidAt: new Date().toISOString() } 
           : order
       ));
-    } catch (err) {
+    } catch {
       toast.error('Payment failed. Please try again.');
     }
   };
