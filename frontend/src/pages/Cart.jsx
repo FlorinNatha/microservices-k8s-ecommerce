@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CartContext } from '../context/CartContext.js';
-import { AuthContext } from '../context/AuthContext.js';
+import { CartContext } from '../context/CartContext';
+import { AuthContext } from '../context/AuthContext';
 import { Trash2, ArrowRight } from 'lucide-react';
 
 const Cart = () => {

@@ -1,8 +1,8 @@
 import { useContext, useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ShoppingBag, Search, Menu, X, User, Shield } from 'lucide-react';
-import { AuthContext } from '../context/AuthContext.js';
-import { CartContext } from '../context/CartContext.js';
+import { AuthContext } from '../context/AuthContext';
+import { CartContext } from '../context/CartContext';
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);

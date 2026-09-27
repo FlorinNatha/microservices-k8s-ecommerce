@@ -1,8 +1,8 @@
 import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { CartContext } from '../context/CartContext.js';
-import { AuthContext } from '../context/AuthContext.js';
+import { CartContext } from '../context/CartContext';
+import { AuthContext } from '../context/AuthContext';
 import { CreditCard, Truck, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 

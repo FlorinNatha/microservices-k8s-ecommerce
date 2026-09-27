@@ -11,8 +11,8 @@ import Checkout from './pages/Checkout';
 import AdminDashboard from './pages/AdminDashboard';
 import Profile from './pages/Profile';
 import AdminRoute from './components/AdminRoute';
-import { AuthProvider } from './context/AuthContext.jsx';
-import { CartProvider } from './context/CartContext.jsx';
+import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
 import { Toaster } from 'react-hot-toast';
 
 function App() {
