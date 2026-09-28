@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import { API_URL } from '../config/api';
 import './Login.css';
 
 const Register = () => {
@@ -20,7 +21,7 @@ const Register = () => {
     
     try {
       // Temporarily creating admins automatically on the backend!
-      await axios.post('http://localhost:8000/api/auth/register', { username, email, password });
+      await axios.post(`${API_URL}/api/auth/register`, { username, email, password });
       
       // Auto login after register
       const result = await login(email, password);

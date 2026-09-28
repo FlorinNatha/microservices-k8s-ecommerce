@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import { API_URL } from '../config/api';
 import { Package, Truck, Star, CreditCard, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -22,7 +23,7 @@ const Profile = () => {
     const fetchOrders = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/orders/myorders', {
+        const response = await axios.get(`${API_URL}/api/orders/myorders`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setOrders(response.data.data.orders);
@@ -65,7 +66,7 @@ const Profile = () => {
         }
       };
 
-      await axios.put(`http://localhost:8000/api/orders/${orderId}/pay`, paymentDetails, {
+      await axios.put(`${API_URL}/api/orders/${orderId}/pay`, paymentDetails, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
