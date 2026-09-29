@@ -79,15 +79,13 @@ Browser
 ## Repository layout
 
 ```text
-api-gateway/                 Express reverse proxy and gateway Kubernetes manifests
-frontend/                    React/Vite application and frontend Kubernetes manifests
-services/                    auth, user, product, order, and payment services
+frontend/                    React/Vite application
+services/                    auth, user, product, order, payment, and api-gateway services
 infrastructure/helm/         Helm charts for infrastructure, services, ingress, and monitoring
 scripts/                     Cluster setup, image build, deployment, and cleanup scripts
 docs/                        Detailed Kubernetes and API design notes
 .github/workflows/ci.yml     CI and container security pipeline
 docker-compose.yml           Local MongoDB, Redis, and RabbitMQ only
-update-metrics.ps1           PowerShell helper for adding metrics to services
 ```
 
 ## Prerequisites
@@ -131,7 +129,7 @@ docker compose down
 Install dependencies in each application directory, then start that application. The backend services use `.env` files through `dotenv`; Kubernetes injects equivalent values through manifests.
 
 ```powershell
-cd api-gateway
+cd services/api-gateway
 npm install
 npm run dev
 ```

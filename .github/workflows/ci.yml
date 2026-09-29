@@ -77,7 +77,7 @@ jobs:
           - services/product-service
           - services/order-service
           - services/payment-service
-          - api-gateway
+          - services/api-gateway
           - frontend
 
     steps:
@@ -133,7 +133,7 @@ jobs:
             context: services/payment-service
             image: payment-service
           - service: api-gateway
-            context: api-gateway
+            context: services/api-gateway
             image: api-gateway
           - service: frontend
             context: frontend
