@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ShoppingCart, ArrowLeft, Check, Shield } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, Shield } from 'lucide-react';
 import { CartContext } from '../context/CartContext';
+import { API_URL } from '../config/api';
 import toast from 'react-hot-toast';
 
 const ProductDetail = () => {
@@ -17,7 +18,7 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/products/${id}`);
+        const response = await axios.get(`${API_URL}/api/products/${id}`);
         setProduct(response.data.data.product);
         setLoading(false);
       } catch (err) {

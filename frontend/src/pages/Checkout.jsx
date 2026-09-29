@@ -1,8 +1,9 @@
-import React, { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { CartContext } from '../context/CartContext';
 import { AuthContext } from '../context/AuthContext';
+import { API_URL } from '../config/api';
 import { CreditCard, Truck, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -45,7 +46,7 @@ const Checkout = () => {
       };
 
       // 1. Create the order
-      const res = await axios.post('http://localhost:8000/api/orders', orderData, {
+      const res = await axios.post(`${API_URL}/api/orders`, orderData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -59,7 +60,7 @@ const Checkout = () => {
         payer: { email_address: user.email }
       };
 
-      await axios.put(`http://localhost:8000/api/orders/${createdOrder._id}/pay`, paymentDetails, {
+      await axios.put(`${API_URL}/api/orders/${createdOrder._id}/pay`, paymentDetails, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

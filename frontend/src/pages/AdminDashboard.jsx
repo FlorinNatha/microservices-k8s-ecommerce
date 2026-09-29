@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { PlusCircle, ShieldAlert, Trash2, Edit2, XCircle } from 'lucide-react';
+import { API_URL } from '../config/api';
 import toast from 'react-hot-toast';
 import './Login.css';
 
@@ -18,29 +19,33 @@ const AdminDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
   const fetchProducts = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:8000/api/products', {
+      const response = await axios.get(`${API_URL}/api/products`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProducts(response.data.data.products);
-    } catch (error) {
+    } catch {
       toast.error('Failed to fetch products');
     } finally {
       setLoadingProducts(false);
     }
   };
 
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void fetchProducts();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, []);
+
   const handleDeleteProduct = async (id) => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:8000/api/products/${id}`, {
+      await axios.delete(`${API_URL}/api/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Product deleted successfully');
@@ -89,13 +94,13 @@ const AdminDashboard = () => {
       const token = localStorage.getItem('token');
       
       if (editingId) {
-        await axios.put(`http://localhost:8000/api/products/${editingId}`, productData, {
+        await axios.put(`${API_URL}/api/products/${editingId}`, productData, {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success('Product updated successfully!', { icon: '✅' });
         setEditingId(null);
       } else {
-        await axios.post('http://localhost:8000/api/products', productData, {
+        await axios.post(`${API_URL}/api/products`, productData, {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success('Product created successfully!', { icon: '✅' });
@@ -120,14 +125,8 @@ const AdminDashboard = () => {
 
   // Pagination logic
   const totalPages = Math.ceil(products.length / itemsPerPage);
-  const currentProducts = products.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  // Auto-adjust page if current page becomes empty after deletion
-  useEffect(() => {
-    if (currentPage > totalPages && totalPages > 0) {
-      setCurrentPage(totalPages);
-    }
-  }, [products.length, currentPage, totalPages]);
+  const visiblePage = Math.min(currentPage, totalPages || 1);
+  const currentProducts = products.slice((visiblePage - 1) * itemsPerPage, visiblePage * itemsPerPage);
 
   return (
     <div className="container" style={{maxWidth: '800px', paddingTop: '40px'}}>

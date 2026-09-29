@@ -4,22 +4,25 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/auth-db';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@example.com';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'AdminPass123!';
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 
 mongoose.connect(MONGO_URI).then(async () => {
   try {
     const db = mongoose.connection.db;
     
-    // Hash new password
+    // Hash password
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash('Admin01', salt);
+    const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, salt);
 
-    // Update or insert admin@gmail.com
+    // Update or insert admin
     const result = await db.collection('users').updateOne(
-      { email: 'admin@gmail.com' },
+      { email: ADMIN_EMAIL },
       { 
         $set: { 
-          username: 'admin',
-          email: 'admin@gmail.com',
+          username: ADMIN_USERNAME,
+          email: ADMIN_EMAIL,
           password: hashedPassword,
           role: 'admin',
           createdAt: new Date()
@@ -28,7 +31,7 @@ mongoose.connect(MONGO_URI).then(async () => {
       { upsert: true }
     );
     
-    console.log('Admin account (admin@gmail.com / Admin01) successfully reset or created!');
+    console.log(`Admin account (${ADMIN_EMAIL}) successfully created or updated!`);
     console.log(result);
   } catch (error) {
     console.error('Error:', error);

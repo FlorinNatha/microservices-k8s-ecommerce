@@ -1,0 +1,8 @@
+fullnameOverride: payment-service
+image: { registry: "", repository: payment-service, tag: "", pullPolicy: IfNotPresent }
+replicaCount: 2
+service: { port: 5004 }
+mongoDatabase: payment-db
+resources:
+  requests: { cpu: 100m, memory: 128Mi }
+  limits: { cpu: 250m, memory: 256Mi }

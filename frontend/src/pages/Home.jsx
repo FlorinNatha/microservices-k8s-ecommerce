@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import ProductCard from '../components/ProductCard';
 import { Loader, Truck, RefreshCw, Phone, ShieldCheck } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
+import { API_URL } from '../config/api';
 
 const categoryCards = [
   { title: 'Noise Cancelling', subtitle: 'Headphones & earbuds', accent: 'from-cyan-500 to-sky-500', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80' },
@@ -20,7 +21,7 @@ const Home = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/products');
+        const response = await axios.get(`${API_URL}/api/products`);
         setProducts(response.data.data.products);
         setLoading(false);
       } catch (err) {

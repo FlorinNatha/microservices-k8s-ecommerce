@@ -1,0 +1,14 @@
+fullnameOverride: auth-service
+image:
+  registry: ""
+  repository: auth-service
+  tag: ""
+  pullPolicy: IfNotPresent
+replicaCount: 2
+service:
+  port: 5000
+mongoDatabase: auth-db
+jwtExpiresIn: 1d
+resources:
+  requests: { cpu: 100m, memory: 128Mi }
+  limits: { cpu: 250m, memory: 256Mi }

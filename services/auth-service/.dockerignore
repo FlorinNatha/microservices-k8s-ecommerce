@@ -4,3 +4,7 @@ npm-debug.log
 k8s/
 README.md
 .gitignore
+createAdmin.js
+promote.js
+demote.js
+scripts/
