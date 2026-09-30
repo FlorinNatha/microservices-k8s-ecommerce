@@ -21,6 +21,8 @@ spec:
           env:
             - name: PORT
               value: "5003"
+            - name: NODE_OPTIONS
+              value: "--experimental-global-webcrypto"
             - name: JWT_SECRET
               valueFrom: { secretKeyRef: { name: ecommerce-secrets, key: jwt_secret } }
             - name: MONGO_URI

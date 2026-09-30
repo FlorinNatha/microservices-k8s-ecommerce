@@ -3,6 +3,17 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 HELM_DIR="${ROOT_DIR}/infrastructure/helm"
+# Auto-load local environment file if it exists
+if [[ -f "${ROOT_DIR}/scripts/helm-deploy.env" ]]; then
+  echo "Loading deployment config from scripts/helm-deploy.env..."
+  # shellcheck disable=SC1091
+  source "${ROOT_DIR}/scripts/helm-deploy.env"
+elif [[ -f "${ROOT_DIR}/scripts/helm-deploy.local.env" ]]; then
+  echo "Loading deployment config from scripts/helm-deploy.local.env..."
+  # shellcheck disable=SC1091
+  source "${ROOT_DIR}/scripts/helm-deploy.local.env"
+fi
+
 NAMESPACE="${NAMESPACE:-ecommerce}"
 IMAGE_TAG="${IMAGE_TAG:-}"
 IMAGE_REGISTRY="${IMAGE_REGISTRY:-}"
