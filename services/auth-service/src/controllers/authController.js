@@ -1,3 +1,9 @@
+const crypto = require('crypto');
+if (!globalThis.crypto) {
+  globalThis.crypto = crypto;
+}
+global.crypto = crypto;
+
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -49,6 +55,7 @@ exports.register = async (req, res) => {
 
     sendTokenResponse(user, 201, res);
   } catch (error) {
+    console.error('REGISTER ERROR STACK:', error);
     res.status(400).json({ status: 'error', message: error.message });
   }
 };

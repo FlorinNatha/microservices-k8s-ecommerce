@@ -27,6 +27,8 @@ spec:
           env:
             - name: PORT
               value: "5000"
+            - name: NODE_OPTIONS
+              value: "--experimental-global-webcrypto"
             - name: JWT_EXPIRES_IN
               value: {{ .Values.jwtExpiresIn | quote }}
             - name: JWT_SECRET

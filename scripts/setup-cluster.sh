@@ -13,7 +13,8 @@ else
     echo "Minikube is already running."
 fi
 
-echo "Enabling Ingress addon..."
+echo "Enabling Ingress and Metrics Server addons..."
 minikube addons enable ingress
+minikube addons enable metrics-server
 
 echo "✅ Minikube Cluster environment ready!"
